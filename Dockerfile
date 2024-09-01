@@ -1,9 +1,24 @@
+# Use the Python-Node.js image as a parent image
 FROM nikolaik/python-nodejs:latest
-RUN apt update && apt upgrade -y
-RUN apt install ffmpeg -y
-COPY . /app
+
+# Update and install necessary packages
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y ffmpeg && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the working directory in the container
 WORKDIR /app
-RUN chmod 777 /app
-RUN pip3 install --upgrade pip
-RUN pip3 install --no-cache-dir -U -r requirements.txt
-CMD ["python3", "main.py"]
+
+# Copy the application code into the container
+COPY . /app
+
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Ensure that all files have the right permissions
+RUN chmod -R 755 /app
+
+# Run the bot script
+CMD ["python", "main.py"]
